@@ -14,7 +14,10 @@ public static class Extensions
         float distance = 1.2f;
 
         RaycastHit2D hit = Physics2D.CircleCast(rigidbody.position, radius, direction.normalized, distance, layerMask);
-        return hit.collider != null && hit.rigidbody != rigidbody;
+        if(hit.collider != null && hit.rigidbody != rigidbody) {
+            return hit.collider.CompareTag("HitCollider") == false;
+        }
+        return false;
     }
 
     public static bool DotTest(this Transform transform, Transform other, Vector2 testDirection) {

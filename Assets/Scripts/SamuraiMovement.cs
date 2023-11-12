@@ -2,9 +2,12 @@ using UnityEngine;
 
 public class SamuraiMovement : MonoBehaviour
 {
+    
+
     private Camera _camera;
     private Rigidbody2D _rigidbody;
     private Animator animator;
+    private BoxCollider2D swordCollider;
 
     private Vector2 velocity;
     private float inputAxis;
@@ -25,6 +28,7 @@ public class SamuraiMovement : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         _camera = Camera.main;
+        swordCollider = transform.Find("Sword").GetComponent<BoxCollider2D>();
     }
 
     private void Update() {
@@ -42,7 +46,6 @@ public class SamuraiMovement : MonoBehaviour
         if (jumping)
             VerticalMovement();
         if (!grounded && velocity.y < -4f) { // MEG EZT, OSSZELEHETNE VONNI *************************************
-            Debug.Log(gravity);
             animator.SetBool("Falling", true);
         } else {
             animator.SetBool("Falling", false);
@@ -51,13 +54,73 @@ public class SamuraiMovement : MonoBehaviour
         if (Input.GetKeyDown("q")) {
             animator.SetInteger("AttackType", 0);
             animator.SetTrigger("AttackTriggered");
+
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(swordCollider.transform.position, swordCollider.size, 0f);
+            if (colliders.Length > 0)
+                TriggerSlicing(colliders);
         }
         else if (Input.GetKeyDown("e")) {
             animator.SetInteger("AttackType", 1);
             animator.SetTrigger("AttackTriggered");
+
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(swordCollider.transform.position, swordCollider.size, 0f);
+           if (colliders.Length > 0)
+                TriggerSlicing(colliders);
         }
 
     }
+
+    private void TriggerSlicing(Collider2D[] colliders) {
+        Collider2D hitColliderFirst = null;
+        foreach (Collider2D collider in colliders) {
+            if (hitColliderFirst == null) {
+                if (collider.CompareTag("HitCollider")) {
+                    hitColliderFirst = collider;
+                    Hitbox hitbox = hitColliderFirst.gameObject.GetComponent<Hitbox>();
+                    SliceableObject sliceable = hitbox.sliceable;
+                    if (sliceable != null) {
+                        sliceable.setSlicedObject(hitbox.sliced);
+                        Vector2 swordVelo = transform.eulerAngles == Vector3.zero ? new Vector2(2, 1) : new Vector2(-2, -1);
+                        sliceable.Slice(velocity.x * new Vector2(2, 0) + swordVelo);
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    /*
+    private void TriggerSlicing(Collider2D[] colliders) {
+        Collider2D unslicedCollider = null;
+        Collider2D hitColliderFirst = null;
+        foreach (Collider2D collider in colliders) {
+            if(unslicedCollider == null || hitColliderFirst == null) {
+                if (collider.CompareTag("Sliceable")) {
+                    unslicedCollider = collider;
+                }
+                if (collider.CompareTag("HitCollider")) {
+                    Debug.Log(collider.gameObject);
+                    hitColliderFirst = collider;
+                }
+            } else {
+                break;
+            }
+        }
+        SliceableWatermelon watermelon = unslicedCollider.gameObject.GetComponent<SliceableWatermelon>();
+        //GameObject watermelonGameObject = unslicedCollider.gameObject;
+        //watermelonGameObject.Find("");
+        if (watermelon != null) {
+            Debug.Log(hitColliderFirst.gameObject.GetComponent<Hitbox>().sliced);
+            watermelon.setSlicedObject(hitColliderFirst.gameObject.GetComponent<Hitbox>().sliced);
+            watermelon.Slice();
+            Debug.Log("Sliced watermelon successfully.");
+        } else {
+            Debug.LogWarning("SliceableWatermelon component not found on the watermelon GameObject.");
+        }
+    }
+    */
+
 
     private void HorizontalMovement() {
         inputAxis = Input.GetAxis("Horizontal");
