@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class SamuraiMovement : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class SamuraiMovement : MonoBehaviour
     public float moveSpeed = 12f;
     public float maxJumpHeight = 7f;
     public float maxJumpTime = 1f;
+
+    private Vector2 characterDir = new Vector2(1, 0); 
 
     // Azert osztjuk kettovel, mert az ugras idejenek feleben felfele, a masik feleben pedig lefele mozogjon a karakter a parabolan
     public float jumpForce => (2f * maxJumpHeight) / (maxJumpTime / 2f);
@@ -55,24 +59,30 @@ public class SamuraiMovement : MonoBehaviour
             animator.SetInteger("AttackType", 0);
             animator.SetTrigger("AttackTriggered");
 
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(swordCollider.transform.position, swordCollider.size, 0f);
+            Vector3 centerOfSwordCollider = swordCollider.transform.position + new Vector3(characterDir.x * swordCollider.offset.x, swordCollider.offset.y, 0);
+            Debug.Log(centerOfSwordCollider);
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(centerOfSwordCollider, swordCollider.size, 0f);
+            Vector2 swordVelo = new Vector2(characterDir.x * 3, 2);
             if (colliders.Length > 0)
-                TriggerSlicing(colliders);
+                TriggerSlicing(colliders, swordVelo);
         }
         else if (Input.GetKeyDown("e")) {
             animator.SetInteger("AttackType", 1);
             animator.SetTrigger("AttackTriggered");
 
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(swordCollider.transform.position, swordCollider.size, 0f);
-           if (colliders.Length > 0)
-                TriggerSlicing(colliders);
+            Vector3 centerOfSwordCollider = swordCollider.transform.position + new Vector3(characterDir.x * swordCollider.offset.x, swordCollider.offset.y, 0);
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(centerOfSwordCollider, swordCollider.size, 0f);
+            Vector2 swordVelo = new Vector2(characterDir.x * 3, 0);
+            if (colliders.Length > 0)
+                TriggerSlicing(colliders, swordVelo);
         }
 
     }
 
-    private void TriggerSlicing(Collider2D[] colliders) {
+    private void TriggerSlicing(Collider2D[] colliders, Vector2 swordVelo) {
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
+            Debug.Log(collider.gameObject);
             if (hitColliderFirst == null) {
                 if (collider.CompareTag("HitCollider")) {
                     hitColliderFirst = collider;
@@ -80,9 +90,12 @@ public class SamuraiMovement : MonoBehaviour
                     SliceableObject sliceable = hitbox.sliceable;
                     if (sliceable != null) {
                         sliceable.setSlicedObject(hitbox.sliced);
-                        Vector2 swordVelo = transform.eulerAngles == Vector3.zero ? new Vector2(2, 1) : new Vector2(-2, -1);
-                        sliceable.Slice(velocity.x * new Vector2(2, 0) + swordVelo);
+                        sliceable.Slice(swordVelo);
                     }
+                }
+                if (collider.CompareTag("HitAbleCollider")) {
+                    HitAbleObject hitAble = collider.gameObject.GetComponent<HitAbleObject>();
+                    hitAble.Hit(10 * swordVelo);
                 }
             } else {
                 break;
@@ -135,9 +148,11 @@ public class SamuraiMovement : MonoBehaviour
         if (velocity.x > 0f) {
             transform.eulerAngles = Vector3.zero;
             animator.SetInteger("PlayerAnimState", 1);
+            characterDir = new Vector2(1, 0);
         } else if (velocity.x < 0f) {
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
             animator.SetInteger("PlayerAnimState", 1);
+            characterDir = new Vector2(-1, 0);
         } else
             animator.SetInteger("PlayerAnimState", 0);
     }

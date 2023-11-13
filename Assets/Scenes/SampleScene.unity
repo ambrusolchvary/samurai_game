@@ -220,7 +220,7 @@ Transform:
   m_GameObject: {fileID: 295454281}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 4.59, y: -1.06, z: 0}
   m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -711,7 +711,7 @@ Transform:
   m_GameObject: {fileID: 933668158}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 5.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -813,11 +813,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7341915661598580466, guid: 43ae4cac36b8b6443be98b1345795fc8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.658346
+      value: 12.11
       objectReference: {fileID: 0}
     - target: {fileID: 7341915661598580466, guid: 43ae4cac36b8b6443be98b1345795fc8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.6539414
+      value: 6.62
       objectReference: {fileID: 0}
     - target: {fileID: 7341915661598580466, guid: 43ae4cac36b8b6443be98b1345795fc8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1411,6 +1411,14 @@ PrefabInstance:
     - target: {fileID: 4836018781905204124, guid: c2db5ae6daca77745981b5c58141b41d, type: 3}
       propertyPath: m_Name
       value: Samurai
+      objectReference: {fileID: 0}
+    - target: {fileID: 5202882482447445304, guid: c2db5ae6daca77745981b5c58141b41d, type: 3}
+      propertyPath: m_Size.x
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5202882482447445304, guid: c2db5ae6daca77745981b5c58141b41d, type: 3}
+      propertyPath: m_Offset.x
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

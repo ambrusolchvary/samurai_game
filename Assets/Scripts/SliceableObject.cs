@@ -22,6 +22,8 @@ public class SliceableObject : MonoBehaviour
     }
 
     public void Slice(Vector2 velocity) {
+        //Debug.Log(unslicedObject);
+        //Debug.Log(_collider);
         unslicedObject.SetActive(false);
         slicedObject.SetActive(true);
 
