@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5836054214881526953}
   - component: {fileID: 2785234506422717119}
   - component: {fileID: 2336798865132611119}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Slice Right
   m_TagString: Sliceable
   m_Icon: {fileID: 0}
@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 8626921449565801275}
   - component: {fileID: 8611733890625036842}
   - component: {fileID: 6174498352461321213}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Slice Bottom
   m_TagString: Sliceable
   m_Icon: {fileID: 0}
@@ -302,7 +302,7 @@ GameObject:
   - component: {fileID: 5401886511690675347}
   - component: {fileID: 1167014642887864447}
   - component: {fileID: 2725190748700278661}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Slice Left
   m_TagString: Sliceable
   m_Icon: {fileID: 0}
@@ -495,6 +495,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 3567759442477397725}
   sliced: {fileID: 2693715854741041455}
+  destroyable: {fileID: 736237505785888498}
 --- !u!50 &7572875562248702050
 Rigidbody2D:
   serializedVersion: 4
@@ -568,7 +569,7 @@ GameObject:
   - component: {fileID: 7635799516668905876}
   - component: {fileID: 9102655011883405133}
   - component: {fileID: 122729032746900705}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Left
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -739,7 +740,7 @@ GameObject:
   - component: {fileID: 323891385491923655}
   - component: {fileID: 3023378213898143571}
   - component: {fileID: 7788683636877253008}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Right
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -1213,6 +1214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 6174498352461321213}
   sliced: {fileID: 7387432302681741912}
+  destroyable: {fileID: 0}
 --- !u!1 &4958943630086018383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1306,6 +1308,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 3567759442477397725}
   sliced: {fileID: 2693715854741041455}
+  destroyable: {fileID: 736237505785888498}
 --- !u!50 &4128626140544236572
 Rigidbody2D:
   serializedVersion: 4
@@ -1412,7 +1415,7 @@ GameObject:
   - component: {fileID: 7910776447042956703}
   - component: {fileID: 3901610093707114146}
   - component: {fileID: 1979422396781006217}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Top
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -1663,6 +1666,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 3567759442477397725}
   sliced: {fileID: 736237505785888498}
+  destroyable: {fileID: 2693715854741041455}
 --- !u!50 &2159187704476829263
 Rigidbody2D:
   serializedVersion: 4
@@ -1703,7 +1707,7 @@ GameObject:
   - component: {fileID: 1913763077510732402}
   - component: {fileID: 7687223167058739606}
   - component: {fileID: 2866718279057684396}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bottom
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -2065,6 +2069,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 2336798865132611119}
   sliced: {fileID: 7144210904735993996}
+  destroyable: {fileID: 0}
 --- !u!1 &6340688756927267085
 GameObject:
   m_ObjectHideFlags: 0
@@ -2077,7 +2082,7 @@ GameObject:
   - component: {fileID: 4549839592267294285}
   - component: {fileID: 5465528259433705026}
   - component: {fileID: 2812593256977188077}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Slice Top
   m_TagString: Sliceable
   m_Icon: {fileID: 0}
@@ -2270,6 +2275,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 2725190748700278661}
   sliced: {fileID: 1049975022690947234}
+  destroyable: {fileID: 0}
 --- !u!50 &6660953772658571068
 Rigidbody2D:
   serializedVersion: 4
@@ -2310,7 +2316,7 @@ GameObject:
   - component: {fileID: 5610168929792727993}
   - component: {fileID: 5004309665222408659}
   - component: {fileID: 5520303349325468455}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Right
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -2588,6 +2594,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 2812593256977188077}
   sliced: {fileID: 5035769299154655787}
+  destroyable: {fileID: 0}
 --- !u!1 &6814598435896752261
 GameObject:
   m_ObjectHideFlags: 0
@@ -2753,7 +2760,7 @@ GameObject:
   - component: {fileID: 1955250523258142276}
   - component: {fileID: 5018289192828326991}
   - component: {fileID: 5413859663266870923}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Left
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -3037,6 +3044,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliceable: {fileID: 3567759442477397725}
   sliced: {fileID: 736237505785888498}
+  destroyable: {fileID: 2693715854741041455}
 --- !u!50 &5587473753867736620
 Rigidbody2D:
   serializedVersion: 4
@@ -3161,7 +3169,7 @@ GameObject:
   - component: {fileID: 6112840551562233869}
   - component: {fileID: 8952940018852386992}
   - component: {fileID: 5352590827706325866}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bottom
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -3223,7 +3231,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 69f30271ed9ec9b499f192c2908bd8a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -3332,7 +3340,7 @@ GameObject:
   - component: {fileID: 7350159377009524483}
   - component: {fileID: 2325299769650437377}
   - component: {fileID: 6322618025298647096}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Top
   m_TagString: HitAbleCollider
   m_Icon: {fileID: 0}
@@ -3394,7 +3402,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 5911ffc5fbd12384eac2744c9eb5b91e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

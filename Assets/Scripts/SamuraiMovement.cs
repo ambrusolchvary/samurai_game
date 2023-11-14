@@ -60,7 +60,7 @@ public class SamuraiMovement : MonoBehaviour
             animator.SetTrigger("AttackTriggered");
 
             Vector3 centerOfSwordCollider = swordCollider.transform.position + new Vector3(characterDir.x * swordCollider.offset.x, swordCollider.offset.y, 0);
-            Debug.Log(centerOfSwordCollider);
+            //Debug.Log(centerOfSwordCollider);
             Collider2D[] colliders = Physics2D.OverlapBoxAll(centerOfSwordCollider, swordCollider.size, 0f);
             Vector2 swordVelo = new Vector2(characterDir.x * 3, 2);
             if (colliders.Length > 0)
@@ -82,7 +82,7 @@ public class SamuraiMovement : MonoBehaviour
     private void TriggerSlicing(Collider2D[] colliders, Vector2 swordVelo) {
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
-            Debug.Log(collider.gameObject);
+            //Debug.Log(collider.gameObject);
             if (hitColliderFirst == null) {
                 if (collider.CompareTag("HitCollider")) {
                     hitColliderFirst = collider;
@@ -90,6 +90,8 @@ public class SamuraiMovement : MonoBehaviour
                     SliceableObject sliceable = hitbox.sliceable;
                     if (sliceable != null) {
                         sliceable.setSlicedObject(hitbox.sliced);
+                        if (hitbox.destroyable != null)
+                            sliceable.setDestroyableObject(hitbox.destroyable);
                         sliceable.Slice(swordVelo);
                     }
                 }

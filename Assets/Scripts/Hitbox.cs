@@ -4,10 +4,11 @@ public class Hitbox : MonoBehaviour
 {
     [SerializeField] public SliceableObject sliceable;
     [SerializeField] public GameObject sliced;
+    [SerializeField] public GameObject destroyable;
 
     
     public void OnCollisionEnter2D(Collision2D other) {
-        Debug.Log(other.gameObject);
+        //Debug.Log(other.gameObject);
         if(sliceable.getSlicedObject() == null) {
             sliceable.setSlicedObject(sliced);
             sliceable.Slice(Vector2.zero);
@@ -15,7 +16,7 @@ public class Hitbox : MonoBehaviour
     }
 
     public void OnTriggerEnter2D(Collider2D collision) {
-        Debug.Log("Nezd meg a Hitbox osztalyt");
+        //Debug.Log("Nezd meg a Hitbox osztalyt");
         if (collision.gameObject.CompareTag("Sword")) {
             //Animator animator = collision.gameObject.GetComponentInParent<Animator>();
             //Animation animation = collision.gameObject.GetComponentInParent<Animation>();

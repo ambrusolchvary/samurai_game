@@ -4,6 +4,7 @@ public class SliceableObject : MonoBehaviour
 {
     [SerializeField] private GameObject unslicedObject;
     private GameObject slicedObject;
+    private GameObject destroyableObject;
 
     private Rigidbody2D _rigidbody;
     private Collider2D _collider;
@@ -21,6 +22,14 @@ public class SliceableObject : MonoBehaviour
         return slicedObject;
     }
 
+    public void setDestroyableObject(GameObject destroyableObject) {
+        this.destroyableObject = destroyableObject;
+    }
+
+    public GameObject getDestroyableObject() {
+        return destroyableObject;
+    }
+
     public void Slice(Vector2 velocity) {
         //Debug.Log(unslicedObject);
         //Debug.Log(_collider);
@@ -33,5 +42,8 @@ public class SliceableObject : MonoBehaviour
         }
 
         _collider.enabled = false;
+        Debug.Log(destroyableObject);
+        if(destroyableObject != null)
+            Destroy(destroyableObject);
     }
 }
