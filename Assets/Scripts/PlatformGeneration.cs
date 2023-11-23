@@ -20,18 +20,23 @@ public class PlatformGeneration : MonoBehaviour
 
     void Start() {
         int platformOffset = 0;
+
+        width = 30;
+        height = 3;
+        seed = 0;
+        Generation(platformOffset, true); // kiindulasi platform, ahova a jatekos megjelenik inditaskor
         for (int i = 0; i < 10; i++) {
+            platformOffset += width + 10;
             width = Random.Range(minWidth, maxWidth);
             seed = Random.Range(-1000000, 1000000);
-            Generation(platformOffset);
-            platformOffset += width + 10;
+            Generation(platformOffset, false);
         }
     }
 
-    void Generation(int platformOffset) {
+    void Generation(int platformOffset, bool startPlatform) {
         int repeatValue = 0;
         for (int x = platformOffset; x < platformOffset + width; x++) {
-            if (repeatValue == 0) {
+            if (repeatValue == 0 && !startPlatform) {
                 height = Mathf.RoundToInt(heightValue * Mathf.PerlinNoise(x / smoothness, seed));
                 GenerateFlatPlatform(x);
                 repeatValue = repeatNum;
