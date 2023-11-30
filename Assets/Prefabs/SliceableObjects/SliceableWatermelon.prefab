@@ -910,6 +910,7 @@ GameObject:
   - component: {fileID: 7173225148554984073}
   - component: {fileID: 2588171575757692667}
   - component: {fileID: 3567759442477397725}
+  - component: {fileID: 5706173391885761774}
   m_Layer: 0
   m_Name: SliceableWatermelon
   m_TagString: Sliceable
@@ -995,7 +996,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &3567759442477397725
 MonoBehaviour:
@@ -1010,6 +1011,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unslicedObject: {fileID: 7321730938731481449}
+--- !u!114 &5706173391885761774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3980368596453117932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a78420472cc5834e87db72a4d9f0a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  maxDistance: 30
 --- !u!1 &4241011338952462561
 GameObject:
   m_ObjectHideFlags: 0

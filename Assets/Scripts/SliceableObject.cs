@@ -42,7 +42,7 @@ public class SliceableObject : MonoBehaviour
         }
 
         _collider.enabled = false;
-        Debug.Log(destroyableObject);
+        //Debug.Log(destroyableObject);
         if(destroyableObject != null)
             Destroy(destroyableObject);
     }

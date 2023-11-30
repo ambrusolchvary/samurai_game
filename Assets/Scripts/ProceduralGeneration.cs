@@ -1,34 +1,121 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class ProceduralGeneration : MonoBehaviour
 {
-    [SerializeField] int width, height;
-    [SerializeField] GameObject dirt, grass;
+    [SerializeField] int minWidth, maxWidth, gapWidth, mapHeight, platformsNum; // a platform's min and max width, every gap's width, map's height
+    [SerializeField] int startWidth, endWidth; // First and last platform's width;
+    [SerializeField] float smoothness, seed;
+    [SerializeField] TileBase groundTile;
+    [SerializeField] TileBase randomElementTile;
+    [SerializeField] TileBase fenceTile;
+    [SerializeField] Tilemap collidableTilemap;
+    [SerializeField] Tilemap generableTilemap;
+    [SerializeField] Tilemap spikeTilemap;
+    [SerializeField] Tile spikeTile;
+    [SerializeField] GameObject sliceAbleWatermelon;
+    int[,] map;
+    int mapWidth;
 
     void Start() {
         Generation();
     }
 
     void Generation() {
-        for(int x = 0; x < width; x++) {
-
-            int minHeight = height - 1;
-            int maxHeight = height + 1;
-
-            height = Random.Range(minHeight, maxHeight);
-
-            for (int y = 0; y < height; y++) {
-                spawnObject(dirt, x, y);
-            }
-            spawnObject(grass, x, height);
-        }
+        int[] widths = GeneratePlatformsWidth(minWidth, maxWidth, platformsNum, startWidth, endWidth);
+        mapWidth = CalculateMapWidth(widths, gapWidth);
+        map = MapInitialization(mapWidth, mapHeight);
+        Debug.Log(map);
+        map = EnvironmentGeneration(map, widths, gapWidth, mapHeight, mapWidth);
+        RenderMap(map, mapWidth, mapHeight, collidableTilemap, spikeTilemap, groundTile, randomElementTile, fenceTile, spikeTile, sliceAbleWatermelon);
     }
 
-    //Everything we spawn will be a child of our procedural generation GameObject
-    void spawnObject(GameObject obj, int width, int height) {
-        obj = Instantiate(obj, new Vector2(width, height), Quaternion.identity);
-        obj.transform.parent = this.transform;
+    int[] GeneratePlatformsWidth(int minWidth, int maxWidth, int platformsNum, int startWidth, int endWidth) {
+        int[] widths = new int[platformsNum];
+        for (int x = 0; x < platformsNum; x++) {
+            if (x == 0) widths[x] = startWidth;
+            else if (x == platformsNum - 1) widths[x] = endWidth;
+            else widths[x] = Random.Range(minWidth, maxWidth);
+        }
+        return widths;
+    }
+
+    int CalculateMapWidth(int[] widths, int gapWidth) {
+        int mapWidth = widths[0];
+        for(int x = 1; x < widths.Length; x++) {
+            mapWidth += (widths[x] + gapWidth);
+        }
+        return mapWidth;
+    }
+
+    public int[,] MapInitialization(int width, int height) {
+        map = new int[width, height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                map[x, y] = 0;
+            }
+        }
+        return map;
+    }
+
+    public int[,] EnvironmentGeneration(int[,] map, int[] widths, int gapWidth, int mapHeight, int mapWidth) {
+        int widthIdx = 0;
+        int gapStartIdx = widths[widthIdx];
+        int gapEndIdx = widths[widthIdx] + gapWidth - 1;
+        int perlinHeight;
+        for (int x = 0; x < mapWidth; x++) {
+            perlinHeight = Mathf.RoundToInt(Mathf.PerlinNoise(x / smoothness, seed) * mapHeight / 2);
+            perlinHeight += mapHeight / 2;
+            if (x < gapStartIdx || x > gapEndIdx) {
+                if (x <= widths[0] || x >= mapWidth - widths[widths.Length - 1]) perlinHeight = 24;
+                for (int y = 0; y < perlinHeight; y++) {
+                    map[x, y] = 1;
+                }
+                float rand = Random.Range(0.0f, 1.0f);
+                if (rand <= 0.2f) { // true, az esetek x%-ban kb tehat az adott platform x szazalekan lesz random objektum elhelyezve
+                    map[x, perlinHeight] = 2;
+                } else if (rand > 0.2f && rand <= 0.25f && x > widths[0] / 2) { // spikes
+                    map[x, perlinHeight] = 3;
+                } else if (rand > 0.25f && rand <= 0.3f && x > widths[0]/2) // sliceable object
+                    map[x, mapHeight-1] = 4;
+            } 
+            else {
+                if (x == gapEndIdx && widthIdx < widths.Length - 1) {
+                    widthIdx++;
+                    gapStartIdx += gapWidth + widths[widthIdx];
+                    gapEndIdx += widths[widthIdx] + gapWidth;
+                }
+                map[x, 0] = 3;
+            }
+        }
+        return map;
+    }
+
+    public void RenderMap(int[,] map,int mapWidth, int mapHeight, Tilemap groundTilemap, Tilemap spikeTilemap, TileBase groundTileBase, TileBase randomElementTileBase, TileBase fenceTileBase, Tile spikeTile, GameObject watermelon) {
+        for (int x = 0; x < mapWidth; x++) {
+            for (int y = 0; y < mapHeight; y++) {
+                if(map[x, y] == 1) {
+                    groundTilemap.SetTile(new Vector3Int(x, y-19, 0), groundTileBase);
+                }
+                if (map[x, y] == 2) {
+                    int prevX = (x == 0) ? 0 : x - 1;
+                    int nextX = (x == mapWidth-1) ? x : x + 1;
+                    if (map[prevX, y] == 2 || map[nextX, y] == 2)
+                        generableTilemap.SetTile(new Vector3Int(x, y - 19, 0), fenceTileBase);
+                    else
+                        generableTilemap.SetTile(new Vector3Int(x, y - 19, 0), randomElementTileBase);
+                }
+                if (map[x, y] == 3) {
+                    spikeTilemap.transform.localScale = new Vector3(1f, 14f, 1f);
+                    if (y == 0) spikeTilemap.SetTile(new Vector3Int(x, -2, 0), spikeTile);
+                    else collidableTilemap.SetTile(new Vector3Int(x, y-19, 0), spikeTile);
+                }
+                if (map[x, y] == 4) {
+                    watermelon = Instantiate(watermelon, new Vector2(x, y), Quaternion.identity);
+                }
+            }
+        }
     }
 }

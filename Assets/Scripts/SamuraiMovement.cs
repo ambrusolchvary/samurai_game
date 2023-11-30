@@ -18,6 +18,9 @@ public class SamuraiMovement : MonoBehaviour
     public float maxJumpHeight = 7f;
     public float maxJumpTime = 1f;
 
+    //private int playerLifes = 5;
+    private float timeOfLastHit = 0f;
+
     private Vector2 characterDir = new Vector2(1, 0); 
 
     // Azert osztjuk kettovel, mert az ugras idejenek feleben felfele, a masik feleben pedig lefele mozogjon a karakter a parabolan
@@ -27,6 +30,8 @@ public class SamuraiMovement : MonoBehaviour
     public bool grounded { get; private set; }
     public bool jumping { get; private set; }
     public bool running => Mathf.Abs(velocity.x) > 0.25f || Mathf.Abs(inputAxis) > 0.25f;
+
+    public HeartsManager heartsManager;
 
     private void Awake() {
         _rigidbody = GetComponent<Rigidbody2D>();
@@ -80,6 +85,9 @@ public class SamuraiMovement : MonoBehaviour
     }
 
     private void TriggerSlicing(Collider2D[] colliders, Vector2 swordVelo) {
+        foreach(Collider2D collider in colliders) {
+            Debug.Log(collider);
+        }
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
             //Debug.Log(collider.gameObject);
@@ -199,5 +207,16 @@ public class SamuraiMovement : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision) {
         if(transform.DotTest(collision.transform, Vector2.up))
             velocity.y = 0f;
+        if (collision.collider.CompareTag("Sliceable") || collision.collider.CompareTag("HitAbleCollider")) {
+            animator.SetTrigger("TakeHitTriggered");
+            Debug.Log(Time.time - timeOfLastHit);
+            float timeOfCurrentHit = Time.time;
+            if (timeOfLastHit == 0f || timeOfCurrentHit - timeOfLastHit > 0.5) {
+                heartsManager.TakeDamage(1);
+                timeOfLastHit = timeOfCurrentHit;
+            }
+        }
+        Debug.Log("life:" + heartsManager.life);
+        if (heartsManager.life == 0) animator.SetBool("PlayerDied", true);
     }
 }

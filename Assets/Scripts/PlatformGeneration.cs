@@ -11,12 +11,13 @@ public class PlatformGeneration : MonoBehaviour
     [SerializeField] float heightValue, smoothness;
     [SerializeField] int repeatNum;
     //[SerializeField] GameObject grass, dirt;
-    [SerializeField] Tilemap grassTilemap, dirtTilemap;
-    [SerializeField] Tile grass, dirt;
+    [SerializeField] Tilemap collidableObjectTilemap, generableObjectTilemap;
+    [SerializeField] Tile grassLeft, grassMiddle, grassRight, dirtLeft, dirtMiddle, dirtRight;
 
     int width;
     int height;
     float seed;
+    
 
     void Start() {
         int platformOffset = 0;
@@ -35,25 +36,30 @@ public class PlatformGeneration : MonoBehaviour
 
     void Generation(int platformOffset, bool startPlatform) {
         int repeatValue = 0;
+        int prevHeight = height;
         for (int x = platformOffset; x < platformOffset + width; x++) {
             if (repeatValue == 0 && !startPlatform) {
                 height = Mathf.RoundToInt(heightValue * Mathf.PerlinNoise(x / smoothness, seed));
-                GenerateFlatPlatform(x);
+                GenerateFlatPlatform(x, platformOffset);
                 repeatValue = repeatNum;
             } else {
-                GenerateFlatPlatform(x);
+                GenerateFlatPlatform(x, platformOffset); // az enumot a lepcsozetes megjeleniteshez a tilemappek miatt hoztad letre de lehet eleg Rule tile/t hasznalni
                 repeatValue--;
             }
         }
     }
 
-    void GenerateFlatPlatform(int x) {
+    void GenerateFlatPlatform(int x, int platformOffset) {
         for (int y = 0; y < height; y++) {
             //spawnObject(dirt, x, y);
-            dirtTilemap.SetTile(new Vector3Int(x, y, 0), dirt);
+            if(x == platformOffset) generableObjectTilemap.SetTile(new Vector3Int(x, y, 0), dirtLeft);
+            else if (x == platformOffset + width-1) generableObjectTilemap.SetTile(new Vector3Int(x, y, 0), dirtRight);
+            else generableObjectTilemap.SetTile(new Vector3Int(x, y, 0), dirtMiddle);
         }
         //spawnObject(grass, x, height);
-        grassTilemap.SetTile(new Vector3Int(x, height, 0), grass);
+        if (x == platformOffset) collidableObjectTilemap.SetTile(new Vector3Int(x, height, 0), grassLeft);
+        else if (x == platformOffset + width - 1) collidableObjectTilemap.SetTile(new Vector3Int(x, height, 0), grassRight);
+        else collidableObjectTilemap.SetTile(new Vector3Int(x, height, 0), grassMiddle);
     } 
 
 

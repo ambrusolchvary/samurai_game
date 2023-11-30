@@ -14,6 +14,6 @@ public class HitAbleObject : MonoBehaviour
     public void Hit(Vector2 velocity) {
         _rigidbody.velocity = _rigidbody.velocity + velocity;
 
-        Debug.Log(_collider.gameObject);
+        //Debug.Log(_collider.gameObject);
     }
 }
