@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,9 @@ public class HeartsManager : MonoBehaviour
 {
     public GameObject[] hearts;
     public int life = 5;
-    private bool dead;
+
+    public UIManager uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,19 +19,15 @@ public class HeartsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(dead == true) {
-
-        }
     }
 
     public void TakeDamage(int damage) {
         if (life >= 1) {
-            life -= damage;
-            //Destroy(hearts[life].gameObject);
-            hearts[life].GetComponent<Animator>().SetTrigger("HeartLostTriggered");
-        }
-        else {
-            dead = true;
+            for(int x = 0; x < damage; x++) {
+                life--;
+                hearts[life].GetComponent<Animator>().SetTrigger("HeartLostTriggered");
+            }
+            if (life == 0) StartCoroutine(uiManager.GameOverSequence());
         }
     }
 }

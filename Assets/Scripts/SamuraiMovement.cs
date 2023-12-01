@@ -32,6 +32,7 @@ public class SamuraiMovement : MonoBehaviour
     public bool running => Mathf.Abs(velocity.x) > 0.25f || Mathf.Abs(inputAxis) > 0.25f;
 
     public HeartsManager heartsManager;
+    public RewardManager rewardManager;
 
     private void Awake() {
         _rigidbody = GetComponent<Rigidbody2D>();
@@ -40,8 +41,12 @@ public class SamuraiMovement : MonoBehaviour
         swordCollider = transform.Find("Sword").GetComponent<BoxCollider2D>();
     }
 
+    private void Start() {
+        EnablePlayerMovement();
+    }
+
     private void Update() {
-        if (Input.GetKey(KeyCode.Escape)) Application.Quit();
+        //if (Input.GetKey(KeyCode.Escape)) Application.Quit();
         HorizontalMovement();
 
         grounded = _rigidbody.Raycast(Vector2.down);
@@ -90,22 +95,10 @@ public class SamuraiMovement : MonoBehaviour
         }
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
-            //Debug.Log(collider.gameObject);
             if (hitColliderFirst == null) {
-                if (collider.CompareTag("HitCollider")) {
-                    hitColliderFirst = collider;
-                    Hitbox hitbox = hitColliderFirst.gameObject.GetComponent<Hitbox>();
-                    SliceableObject sliceable = hitbox.sliceable;
-                    if (sliceable != null) {
-                        sliceable.setSlicedObject(hitbox.sliced);
-                        if (hitbox.destroyable != null)
-                            sliceable.setDestroyableObject(hitbox.destroyable);
-                        sliceable.Slice(swordVelo);
-                    }
-                }
-                if (collider.CompareTag("HitAbleCollider")) {
-                    HitAbleObject hitAble = collider.gameObject.GetComponent<HitAbleObject>();
-                    hitAble.Hit(10 * swordVelo);
+                if (collider.CompareTag("Sliceable") || collider.CompareTag("WoundingSliceable")) {
+                    ProbaVagasra box = collider.gameObject.GetComponent<ProbaVagasra>();
+                    box.Slice(swordVelo);
                 }
             } else {
                 break;
@@ -200,14 +193,14 @@ public class SamuraiMovement : MonoBehaviour
 
         // if (position.x == leftEdge.x + 1f) velocity.x = 0f;  //////////////////////////////////////// de lehet inkabb a horizontalMovement-be kene implementalni
 
-        _rigidbody.MovePosition(position);
+        if (_rigidbody.bodyType == RigidbodyType2D.Dynamic) _rigidbody.MovePosition(position);
     }
 
     // Ehelyett es az Extensions.DotTest() helyett lehet eleg csak if(_rigidBody.Raycast(Vector2.up)) velocity.y = 0f; Mert nalam nincs specialbox ami kiveteles ha megfejeli
     private void OnCollisionEnter2D(Collision2D collision) {
         if(transform.DotTest(collision.transform, Vector2.up))
             velocity.y = 0f;
-        if (collision.collider.CompareTag("Sliceable") || collision.collider.CompareTag("HitAbleCollider")) {
+        if (collision.collider.CompareTag("WoundingSliceable")) {
             animator.SetTrigger("TakeHitTriggered");
             Debug.Log(Time.time - timeOfLastHit);
             float timeOfCurrentHit = Time.time;
@@ -217,6 +210,18 @@ public class SamuraiMovement : MonoBehaviour
             }
         }
         Debug.Log("life:" + heartsManager.life);
-        if (heartsManager.life == 0) animator.SetBool("PlayerDied", true);
+        if (heartsManager.life == 0) {
+            PlayerDead();
+        }
+    }
+
+    private void EnablePlayerMovement() {
+        animator.enabled = true;
+        _rigidbody.bodyType = RigidbodyType2D.Dynamic;
+    }
+
+    public void PlayerDead() {
+        animator.SetBool("PlayerDied", true);
+        _rigidbody.bodyType = RigidbodyType2D.Static;
     }
 }

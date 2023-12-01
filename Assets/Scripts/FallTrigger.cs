@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class FallTrigger : MonoBehaviour
 {
     public GameObject player;
+    public HeartsManager heartsManager;
 
     void Start() {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -18,8 +19,12 @@ public class FallTrigger : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject == player)
-            SceneManager.LoadScene("SampleScene");
+        if (other.gameObject == player) {
+            //SceneManager.LoadScene("SampleScene");
+            heartsManager.TakeDamage(heartsManager.life);
+            player.GetComponent<Animator>().SetTrigger("TakeHitTriggered"); // Ezt lehet at kene tenned a SamuraiMovementbe a collision detekciohoz, ahol a dinnyeket is csekkolod
+            player.GetComponent<SamuraiMovement>().PlayerDead();
+        }
     }
 
 }

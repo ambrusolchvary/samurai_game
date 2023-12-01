@@ -6,7 +6,7 @@ public class Hitbox : MonoBehaviour
     [SerializeField] public GameObject sliced;
     [SerializeField] public GameObject destroyable;
 
-    
+       
     public void OnCollisionEnter2D(Collision2D other) {
         //Debug.Log(other.gameObject);
         if(sliceable.getSlicedObject() == null) {
@@ -23,5 +23,5 @@ public class Hitbox : MonoBehaviour
             //Debug.Log(animator.GetAnimatorTransitionInfo(0).IsName("Attack1_Animation"));
             //Debug.Log(animation.IsPlaying("Attack1_Animation"));
         }
-    }
+    }    
 }

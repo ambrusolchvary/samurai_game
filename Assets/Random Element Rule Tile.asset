@@ -54,7 +54,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 2
-    m_RandomTransform: 3
+    m_RandomTransform: 2
     m_Neighbors: 
     m_NeighborPositions: []
     m_RuleTransform: 0
