@@ -16,6 +16,7 @@ public class ProceduralGeneration : MonoBehaviour
     [SerializeField] Tilemap generableTilemap;
     [SerializeField] Tilemap spikeTilemap;
     [SerializeField] Tilemap woundingTilemap;
+    [SerializeField] Tilemap doorTilemap;
     [SerializeField] Tile spikeTile;
     [SerializeField] GameObject sliceAbleWatermelon;
     int[,] map;
@@ -29,9 +30,9 @@ public class ProceduralGeneration : MonoBehaviour
         int[] widths = GeneratePlatformsWidth(minWidth, maxWidth, platformsNum, startWidth, endWidth);
         mapWidth = CalculateMapWidth(widths, gapWidth);
         map = MapInitialization(mapWidth, mapHeight);
-        Debug.Log(map);
+        //Debug.Log(map);
         map = EnvironmentGeneration(map, widths, gapWidth, mapHeight, mapWidth);
-        RenderMap(map, mapWidth, mapHeight, collidableTilemap, spikeTilemap, woundingTilemap, groundTile, endPlatformTile, randomElementTile, fenceTile, spikeTile, sliceAbleWatermelon);
+        RenderMap(map, mapWidth, mapHeight, collidableTilemap, spikeTilemap, woundingTilemap, doorTilemap, groundTile, endPlatformTile, randomElementTile, fenceTile, spikeTile, sliceAbleWatermelon);
     }
 
     int[] GeneratePlatformsWidth(int minWidth, int maxWidth, int platformsNum, int startWidth, int endWidth) {
@@ -45,9 +46,10 @@ public class ProceduralGeneration : MonoBehaviour
     }
 
     int CalculateMapWidth(int[] widths, int gapWidth) {
-        int mapWidth = widths[0];
+        int mapWidth = widths[0]; // 25
         for(int x = 1; x < widths.Length; x++) {
-            mapWidth += (widths[x] + gapWidth);
+            Debug.Log("width: "+widths[x]);
+            mapWidth += (widths[x] + gapWidth); // 44 + 8       // 30 + 8
         }
         return mapWidth;
     }
@@ -64,14 +66,23 @@ public class ProceduralGeneration : MonoBehaviour
 
     public int[,] EnvironmentGeneration(int[,] map, int[] widths, int gapWidth, int mapHeight, int mapWidth) {
         int widthIdx = 0;
-        int gapStartIdx = widths[widthIdx];
-        int gapEndIdx = widths[widthIdx] + gapWidth - 1;
+        int gapStartIdx = widths[widthIdx]; //25
+        int gapEndIdx = widths[widthIdx] + gapWidth - 1; //33
         int perlinHeight;
         for (int x = 0; x < mapWidth; x++) {
-            perlinHeight = Mathf.RoundToInt(Mathf.PerlinNoise(x / smoothness, seed) * mapHeight / 2);
-            perlinHeight += mapHeight / 2;
-            if (x < gapStartIdx || x > gapEndIdx) {
-                bool isEndPlatform = x >= mapWidth - widths[widths.Length - 1];
+            perlinHeight = Mathf.RoundToInt(Mathf.PerlinNoise(x / smoothness, seed) * mapHeight / 4);
+            perlinHeight += mapHeight / 4;
+            if (x >= gapStartIdx && x <= gapEndIdx) {
+                if (x == gapEndIdx && widthIdx < widths.Length - 1) {
+                    widthIdx++;
+                    gapStartIdx = gapEndIdx + widths[widthIdx] + 1; // 82
+                    gapEndIdx = gapStartIdx + gapWidth -1; // 90
+                }
+                map[x, 0] = 4;
+            }
+            else {
+                int endPstartIdx = mapWidth - widths[widths.Length - 1];
+                bool isEndPlatform = (x >= endPstartIdx);
                 if (x <= widths[0] || isEndPlatform) perlinHeight = 20;
                 if (x > mapWidth - widths[widths.Length - 1]/3) perlinHeight = mapHeight;
                 for (int y = 0; y < perlinHeight; y++) {
@@ -83,50 +94,51 @@ public class ProceduralGeneration : MonoBehaviour
                         map[x, perlinHeight] = 3;
                     } else if (rand > 0.2f && rand <= 0.25f && x > widths[0] / 2) { // spikes
                         map[x, perlinHeight] = 4;
-                    } else if (rand > 0.25f && rand <= 0.3f && x > widths[0] / 2) // sliceable object
-                        map[x, mapHeight - 1] = 5;
+                    } else if (rand > 0.25f && rand <= 0.3f && x > widths[0] / 2) {// sliceable object
+                        map[x, perlinHeight + 20] = 5;
+                    }
+                }
+                if (x >= endPstartIdx && x < endPstartIdx + 3) {
+                    for(int y = perlinHeight; y < mapHeight; y++) {
+                        map[x, y] = 6;
+                    }                    
                 }
             } 
-            else {
-                if (x == gapEndIdx && widthIdx < widths.Length - 1) {
-                    widthIdx++;
-                    gapStartIdx += gapWidth + widths[widthIdx];
-                    gapEndIdx += widths[widthIdx] + gapWidth;
-                }
-                map[x, 0] = 4;
-            }
         }
         return map;
     }
 
-    public void RenderMap(int[,] map,int mapWidth, int mapHeight, Tilemap groundTilemap, Tilemap spikeTilemap, Tilemap woundingTilemap, TileBase groundTileBase, TileBase endPlatformTileBase, TileBase randomElementTileBase, TileBase fenceTileBase, Tile spikeTile, GameObject watermelon) {
+    public void RenderMap(int[,] map,int mapWidth, int mapHeight, Tilemap groundTilemap, Tilemap spikeTilemap, Tilemap woundingTilemap, Tilemap doorTilemap, TileBase groundTileBase, TileBase endPlatformTileBase, TileBase randomElementTileBase, TileBase fenceTileBase, Tile spikeTile, GameObject watermelon) {
         for (int x = 0; x < mapWidth; x++) {
             float rotateOnZaxis = 110; // minden egyes dinnyet ennyivel forgatunk az elotte levohoz kepest
             for (int y = 0; y < mapHeight; y++) {
                 if(map[x, y] == 1) {
-                    groundTilemap.SetTile(new Vector3Int(x, y-19, 0), groundTileBase);
+                    groundTilemap.SetTile(new Vector3Int(x, y, 0), groundTileBase);
                 }
                 if (map[x, y] == 2) {
-                    groundTilemap.SetTile(new Vector3Int(x, y - 19, 0), endPlatformTileBase);
+                    groundTilemap.SetTile(new Vector3Int(x, y, 0), endPlatformTileBase);
                 }
                 if (map[x, y] == 3) {
                     int prevX = (x == 0) ? 0 : x - 1;
                     int nextX = (x == mapWidth-1) ? x : x + 1;
                     if (map[prevX, y] == 2 || map[nextX, y] == 2)
-                        generableTilemap.SetTile(new Vector3Int(x, y - 19, 0), fenceTileBase);
+                        generableTilemap.SetTile(new Vector3Int(x, y, 0), fenceTileBase);
                     else
-                        generableTilemap.SetTile(new Vector3Int(x, y - 19, 0), randomElementTileBase);
+                        generableTilemap.SetTile(new Vector3Int(x, y, 0), randomElementTileBase);
                 }
                 if (map[x, y] == 4) {
                     spikeTilemap.transform.localScale = new Vector3(1f, 14f, 1f);
-                    if (y == 0) spikeTilemap.SetTile(new Vector3Int(x, -2, 0), spikeTile);
-                    else woundingTilemap.SetTile(new Vector3Int(x, y-19, 0), spikeTile);
+                    if (y == 0) spikeTilemap.SetTile(new Vector3Int(x, y, 0), spikeTile);
+                    else woundingTilemap.SetTile(new Vector3Int(x, y, 0), spikeTile);
                 }
                 if (map[x, y] == 5) {
                     watermelon = Instantiate(watermelon, new Vector2(x, y), Quaternion.identity);
                     float rotationOnZ = watermelon.transform.rotation.z + rotateOnZaxis;
                     Quaternion rotation = Quaternion.Euler(0, 0, rotationOnZ);
                     watermelon.transform.rotation = rotation;
+                }
+                if (map[x, y] == 6) {
+                    doorTilemap.SetTile(new Vector3Int(x, y, 0), endPlatformTileBase);
                 }
             }
         }
