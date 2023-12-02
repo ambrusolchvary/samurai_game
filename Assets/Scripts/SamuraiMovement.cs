@@ -96,9 +96,13 @@ public class SamuraiMovement : MonoBehaviour
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
             if (hitColliderFirst == null) {
-                if (collider.CompareTag("Sliceable") || collider.CompareTag("WoundingSliceable")) {
-                    ProbaVagasra box = collider.gameObject.GetComponent<ProbaVagasra>();
-                    box.Slice(swordVelo);
+                if (collider.CompareTag("Sliceable") || collider.CompareTag("WoundingSliceable") || 
+                    collider.CompareTag("SliceableDestroyer") || collider.CompareTag("Reward")) {
+                    Sliceable sliceable = collider.gameObject.GetComponent<Sliceable>();
+                    sliceable.Slice(swordVelo);
+                    if (collider.CompareTag("Reward")) {
+                        rewardManager.watermelonCount++;
+                    }
                 }
             } else {
                 break;
@@ -198,14 +202,17 @@ public class SamuraiMovement : MonoBehaviour
 
     // Ehelyett es az Extensions.DotTest() helyett lehet eleg csak if(_rigidBody.Raycast(Vector2.up)) velocity.y = 0f; Mert nalam nincs specialbox ami kiveteles ha megfejeli
     private void OnCollisionEnter2D(Collision2D collision) {
+        Debug.Log("collision:" + collision.collider.CompareTag("WoundingObject"));
         if(transform.DotTest(collision.transform, Vector2.up))
             velocity.y = 0f;
-        if (collision.collider.CompareTag("WoundingSliceable")) {
+        if (collision.collider.CompareTag("WoundingSliceable") || collision.collider.CompareTag("WoundingObject") || collision.collider.CompareTag("Reward")) {
             animator.SetTrigger("TakeHitTriggered");
             Debug.Log(Time.time - timeOfLastHit);
             float timeOfCurrentHit = Time.time;
             if (timeOfLastHit == 0f || timeOfCurrentHit - timeOfLastHit > 0.5) {
                 heartsManager.TakeDamage(1);
+                Vector2 hurtedVelo = new Vector2(-characterDir.x * 10, 20);
+                velocity += hurtedVelo;
                 timeOfLastHit = timeOfCurrentHit;
             }
         }
