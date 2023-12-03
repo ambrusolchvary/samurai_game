@@ -20,7 +20,7 @@ public class RewardManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(watermelonCount);
+       //Debug.Log(watermelonCount);
         watermelonText.text = ": " + watermelonCount.ToString();
         if(watermelonCount >= minScoreToOpen && !isOpen) {
             door.transform.position += new Vector3(0, 15, 0);

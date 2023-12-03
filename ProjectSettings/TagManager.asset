@@ -12,6 +12,7 @@ TagManager:
   - SliceableDestroyer
   - Reward
   - WoundingObject
+  - HeartReward
   layers:
   - Default
   - TransparentFX

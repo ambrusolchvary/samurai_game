@@ -91,7 +91,7 @@ public class SamuraiMovement : MonoBehaviour
 
     private void TriggerSlicing(Collider2D[] colliders, Vector2 swordVelo) {
         foreach(Collider2D collider in colliders) {
-            Debug.Log(collider);
+            //Debug.Log(collider);
         }
         Collider2D hitColliderFirst = null;
         foreach (Collider2D collider in colliders) {
@@ -202,12 +202,11 @@ public class SamuraiMovement : MonoBehaviour
 
     // Ehelyett es az Extensions.DotTest() helyett lehet eleg csak if(_rigidBody.Raycast(Vector2.up)) velocity.y = 0f; Mert nalam nincs specialbox ami kiveteles ha megfejeli
     private void OnCollisionEnter2D(Collision2D collision) {
-        Debug.Log("collision:" + collision.collider.CompareTag("WoundingObject"));
         if(transform.DotTest(collision.transform, Vector2.up))
             velocity.y = 0f;
         if (collision.collider.CompareTag("WoundingSliceable") || collision.collider.CompareTag("WoundingObject") || collision.collider.CompareTag("Reward")) {
             animator.SetTrigger("TakeHitTriggered");
-            Debug.Log(Time.time - timeOfLastHit);
+            //Debug.Log(Time.time - timeOfLastHit);
             float timeOfCurrentHit = Time.time;
             if (timeOfLastHit == 0f || timeOfCurrentHit - timeOfLastHit > 0.5) {
                 heartsManager.TakeDamage(1);
@@ -216,7 +215,6 @@ public class SamuraiMovement : MonoBehaviour
                 timeOfLastHit = timeOfCurrentHit;
             }
         }
-        Debug.Log("life:" + heartsManager.life);
         if (heartsManager.life == 0) {
             PlayerDead();
         }

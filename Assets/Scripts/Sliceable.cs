@@ -24,6 +24,9 @@ public class Sliceable : MonoBehaviour
                 containerOfSliced.position = this.gameObject.transform.position;
                 containerOfSliced.rotation = this.gameObject.transform.rotation;
                 slicedObj.SetActive(true);
+                if (isSclicedDestroyer) {
+                    slicedObj.GetComponent<Animator>().SetTrigger("FlashingTriggered");
+                }
                 slicedObj.GetComponent<Rigidbody2D>().velocity += 2 * velocity;
             }
             if (isSclicedDestroyer) {

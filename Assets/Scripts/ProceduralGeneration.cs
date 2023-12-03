@@ -48,7 +48,7 @@ public class ProceduralGeneration : MonoBehaviour
     int CalculateMapWidth(int[] widths, int gapWidth) {
         int mapWidth = widths[0]; // 25
         for(int x = 1; x < widths.Length; x++) {
-            Debug.Log("width: "+widths[x]);
+            //Debug.Log("width: "+widths[x]);
             mapWidth += (widths[x] + gapWidth); // 44 + 8       // 30 + 8
         }
         return mapWidth;
