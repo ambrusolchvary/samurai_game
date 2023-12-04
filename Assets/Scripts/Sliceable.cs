@@ -27,7 +27,9 @@ public class Sliceable : MonoBehaviour
                 if (isSclicedDestroyer) {
                     slicedObj.GetComponent<Animator>().SetTrigger("FlashingTriggered");
                 }
-                slicedObj.GetComponent<Rigidbody2D>().velocity += 2 * velocity;
+                Vector2 bummDir = slicedObj.GetComponent<Transform>().position - transform.position;
+                slicedObj.GetComponent<Rigidbody2D>().velocity += 2 * velocity + 10 * bummDir;
+                //slicedObj.GetComponent<Transform>().rotation = new Quaternion(1, 1, Random.Range(-10.0f, 10.0f), 1);
             }
             if (isSclicedDestroyer) {
                 Destroy(toBeDestroyed, 2.0f);

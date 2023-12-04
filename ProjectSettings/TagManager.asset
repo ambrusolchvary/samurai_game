@@ -12,7 +12,8 @@ TagManager:
   - SliceableDestroyer
   - Reward
   - WoundingObject
-  - HeartReward
+  - ProceduralGeneration
+  - GameManager
   layers:
   - Default
   - TransparentFX

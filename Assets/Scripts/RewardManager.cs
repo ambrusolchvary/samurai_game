@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -7,24 +8,27 @@ using UnityEngine.UI;
 public class RewardManager : MonoBehaviour
 {
     public int watermelonCount = 0;
-    public Text watermelonText;
+    public TextMeshProUGUI watermelonScore;
     public Tilemap door;
     private int minScoreToOpen = 3;
     private bool isOpen = false; // door
-
-    // Start is called before the first frame update
+    private float openedDoorHeight = 10.0f; // milyen magasra nyiljon fel az ajto
+    private Vector3 startDoorPos;
+    
     void Start()
-    {        
+    {
+        startDoorPos = door.transform.position;
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
-       //Debug.Log(watermelonCount);
-        watermelonText.text = ": " + watermelonCount.ToString();
+        watermelonScore.text = ": " + watermelonCount.ToString();
         if(watermelonCount >= minScoreToOpen && !isOpen) {
-            door.transform.position += new Vector3(0, 15, 0);
+            door.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(0, 2*openedDoorHeight);
             isOpen = true;
+        }
+        if (door.transform.position.y >= openedDoorHeight) {
+            door.gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         }
     }
 }

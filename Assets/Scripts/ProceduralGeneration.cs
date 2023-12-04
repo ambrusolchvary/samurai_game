@@ -22,6 +22,12 @@ public class ProceduralGeneration : MonoBehaviour
     int[,] map;
     int mapWidth;
 
+    private int endPstartIdx;
+    public int GetEndPstartIdx() {
+        return endPstartIdx;
+    }
+    
+
     void Start() {
         Generation();
     }
@@ -81,7 +87,7 @@ public class ProceduralGeneration : MonoBehaviour
                 map[x, 0] = 4;
             }
             else {
-                int endPstartIdx = mapWidth - widths[widths.Length - 1];
+                endPstartIdx = mapWidth - widths[widths.Length - 1];
                 bool isEndPlatform = (x >= endPstartIdx);
                 if (x <= widths[0] || isEndPlatform) perlinHeight = 20;
                 if (x > mapWidth - widths[widths.Length - 1]/3) perlinHeight = mapHeight;

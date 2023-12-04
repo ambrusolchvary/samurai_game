@@ -2,26 +2,29 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+// Samurai karakter mozgasat megvalosito osztaly
 public class SamuraiMovement : MonoBehaviour
 {
-    
+    private Camera _camera; // main camera, amely koveti a samurai-t
+    private Rigidbody2D _rigidbody; // a samurai rigidbody-ja a fizikai hatasokhoz
+    private Animator animator; // animator a samurai-hoz tartozo kulonbozo animaciok es azok lejatszanak vezerlesehez
 
-    private Camera _camera;
-    private Rigidbody2D _rigidbody;
-    private Animator animator;
-    private BoxCollider2D swordCollider;
+    private Vector2 velocity; // karakter sebessege
+    private float inputAxis; // horizontalis mozgatashoz a felhasznaloi input kezelese
 
-    private Vector2 velocity;
-    private float inputAxis;
+    public float moveSpeed = 15f; // a karakter mozgasanak gyorsasagat lehet megadni
+    public float maxJumpHeight = 7f; // az ugras parabolajanak maximalis, talajtol szamitott magassaga
+    public float maxJumpTime = 1f; // az ugras hossza masodpercben
 
-    public float moveSpeed = 12f;
-    public float maxJumpHeight = 7f;
-    public float maxJumpTime = 1f;
+    // itt taroljuk el az utolso megsebesulesunk (a frame kezdetetol szamitott) idejet, ami ahhoz kell, hogy ne tudjunk egy utkozes soran indokolatlanul tobbszor is sebzodni
+    private float timeOfLastHitTaken = 0f; 
 
-    //private int playerLifes = 5;
-    private float timeOfLastHit = 0f;
+    private Vector2 characterDir = new Vector2(1, 0); // a karakter eloretekinto iranya, kezdetben jobbra nez
 
-    private Vector2 characterDir = new Vector2(1, 0); 
+    // publikus getter a karakter eloretekinto iranyahoz, hogy masik osztalybol is elerheto legyen
+    public Vector2 GetCharacterDir() { 
+        return characterDir;
+    }
 
     // Azert osztjuk kettovel, mert az ugras idejenek feleben felfele, a masik feleben pedig lefele mozogjon a karakter a parabolan
     public float jumpForce => (2f * maxJumpHeight) / (maxJumpTime / 2f);
@@ -30,15 +33,18 @@ public class SamuraiMovement : MonoBehaviour
     public bool grounded { get; private set; }
     public bool jumping { get; private set; }
     public bool running => Mathf.Abs(velocity.x) > 0.25f || Mathf.Abs(inputAxis) > 0.25f;
+    
 
     public HeartsManager heartsManager;
-    public RewardManager rewardManager;
+    public UIManager uiManager;
+
+    private GameObject proceduralGenerator;
 
     private void Awake() {
         _rigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         _camera = Camera.main;
-        swordCollider = transform.Find("Sword").GetComponent<BoxCollider2D>();
+        proceduralGenerator = GameObject.FindWithTag("ProceduralGeneration");
     }
 
     private void Start() {
@@ -46,101 +52,26 @@ public class SamuraiMovement : MonoBehaviour
     }
 
     private void Update() {
-        //if (Input.GetKey(KeyCode.Escape)) Application.Quit();
-        HorizontalMovement();
+        HorizontalMovement(); // horizontalis mozgas mindig hasznalhato
 
+        // ha atleptunk az utolso platform kezdetet meghatarozo x koordinata +10-edik hataran, azaz beertunk a celba, akkor a jateknak vege es nyert a jatekos
+        if (transform.position.x > proceduralGenerator.GetComponent<ProceduralGeneration>().GetEndPstartIdx() + 10) {
+            PlayerDead();
+            StartCoroutine(uiManager.WinningSequence());
+        }
+        // Az External osztalyban megirt raycast metodussal folyton vizsgaljuk, hogy talajon allunk-e (vagy sliceable objektumon) es aszerint allitjuk a grounded erteket
         grounded = _rigidbody.Raycast(Vector2.down);
 
-        if (grounded) {
-            GroundedMovement(); // EZT **************************************************************************
-        }
+        animator.SetBool("IsGrounded", grounded);
+
+        if (grounded) GroundedMovement();
+
+        VerticalMovement();
+        
 
         ApplyGravity();
 
-        if (jumping)
-            VerticalMovement();
-        if (!grounded && velocity.y < -4f) { // MEG EZT, OSSZELEHETNE VONNI *************************************
-            animator.SetBool("Falling", true);
-        } else {
-            animator.SetBool("Falling", false);
-        }
-
-        if (Input.GetKeyDown("q")) {
-            animator.SetInteger("AttackType", 0);
-            animator.SetTrigger("AttackTriggered");
-
-            Vector3 centerOfSwordCollider = swordCollider.transform.position + new Vector3(characterDir.x * swordCollider.offset.x, swordCollider.offset.y, 0);
-            //Debug.Log(centerOfSwordCollider);
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(centerOfSwordCollider, swordCollider.size, 0f);
-            Vector2 swordVelo = new Vector2(characterDir.x * 3, 2);
-            if (colliders.Length > 0)
-                TriggerSlicing(colliders, swordVelo);
-        }
-        else if (Input.GetKeyDown("e")) {
-            animator.SetInteger("AttackType", 1);
-            animator.SetTrigger("AttackTriggered");
-
-            Vector3 centerOfSwordCollider = swordCollider.transform.position + new Vector3(characterDir.x * swordCollider.offset.x, swordCollider.offset.y, 0);
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(centerOfSwordCollider, swordCollider.size, 0f);
-            Vector2 swordVelo = new Vector2(characterDir.x * 3, 0);
-            if (colliders.Length > 0)
-                TriggerSlicing(colliders, swordVelo);
-        }
-
     }
-
-    private void TriggerSlicing(Collider2D[] colliders, Vector2 swordVelo) {
-        foreach(Collider2D collider in colliders) {
-            //Debug.Log(collider);
-        }
-        Collider2D hitColliderFirst = null;
-        foreach (Collider2D collider in colliders) {
-            if (hitColliderFirst == null) {
-                if (collider.CompareTag("Sliceable") || collider.CompareTag("WoundingSliceable") || 
-                    collider.CompareTag("SliceableDestroyer") || collider.CompareTag("Reward")) {
-                    Sliceable sliceable = collider.gameObject.GetComponent<Sliceable>();
-                    sliceable.Slice(swordVelo);
-                    if (collider.CompareTag("Reward")) {
-                        rewardManager.watermelonCount++;
-                    }
-                }
-            } else {
-                break;
-            }
-        }
-    }
-
-    /*
-    private void TriggerSlicing(Collider2D[] colliders) {
-        Collider2D unslicedCollider = null;
-        Collider2D hitColliderFirst = null;
-        foreach (Collider2D collider in colliders) {
-            if(unslicedCollider == null || hitColliderFirst == null) {
-                if (collider.CompareTag("Sliceable")) {
-                    unslicedCollider = collider;
-                }
-                if (collider.CompareTag("HitCollider")) {
-                    Debug.Log(collider.gameObject);
-                    hitColliderFirst = collider;
-                }
-            } else {
-                break;
-            }
-        }
-        SliceableWatermelon watermelon = unslicedCollider.gameObject.GetComponent<SliceableWatermelon>();
-        //GameObject watermelonGameObject = unslicedCollider.gameObject;
-        //watermelonGameObject.Find("");
-        if (watermelon != null) {
-            Debug.Log(hitColliderFirst.gameObject.GetComponent<Hitbox>().sliced);
-            watermelon.setSlicedObject(hitColliderFirst.gameObject.GetComponent<Hitbox>().sliced);
-            watermelon.Slice();
-            Debug.Log("Sliced watermelon successfully.");
-        } else {
-            Debug.LogWarning("SliceableWatermelon component not found on the watermelon GameObject.");
-        }
-    }
-    */
-
 
     private void HorizontalMovement() {
         inputAxis = Input.GetAxis("Horizontal");
@@ -148,9 +79,7 @@ public class SamuraiMovement : MonoBehaviour
 
         if (inputAxis == 0f)
             velocity.x /= 4f;
-
-        if (_rigidbody.Raycast(Vector2.right * velocity.x))
-            velocity.x = 0f;
+        
 
         if (velocity.x > 0f) {
             transform.eulerAngles = Vector3.zero;
@@ -165,7 +94,9 @@ public class SamuraiMovement : MonoBehaviour
     }
 
     private void VerticalMovement() { // Az ugras animaciohoz kell, hogy tudjuk mikor valt at a jumping animaciorol a falling animaciora ugraskozben
-        animator.SetFloat("JumpVelocity", velocity.y/jumpForce); // de vegulis lehet torolheted is ezt a metodust meg a jump and fall blend tree-t es helyette csak hasznald kulon a jump es fall animaciokat kulon kulon a boolean meg a trigger ertekek alapjan
+        if (velocity.y <= 0) {
+            animator.SetTrigger("FallingTriggered"); // de vegulis lehet torolheted is ezt a metodust meg a jump and fall blend tree-t es helyette csak hasznald kulon a jump es fall animaciokat kulon kulon a boolean meg a trigger ertekek alapjan
+        }
     }
 
     private void GroundedMovement() {
@@ -173,9 +104,11 @@ public class SamuraiMovement : MonoBehaviour
         jumping = velocity.y > 0f;
 
         if (Input.GetButtonDown("Jump")) {
-            animator.SetTrigger("JumpTriggered");
-            velocity.y = jumpForce;
             jumping = true;
+            grounded = false;
+            animator.SetTrigger("JumpTriggered");
+            animator.SetBool("IsGrounded", grounded);
+            velocity.y = jumpForce;
         }
     }
 
@@ -195,38 +128,39 @@ public class SamuraiMovement : MonoBehaviour
         Vector2 rightEdge = _camera.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
         position.x = Mathf.Clamp(position.x, leftEdge.x + 1f, rightEdge.x - 1f);
 
-        // if (position.x == leftEdge.x + 1f) velocity.x = 0f;  //////////////////////////////////////// de lehet inkabb a horizontalMovement-be kene implementalni
-
         if (_rigidbody.bodyType == RigidbodyType2D.Dynamic) _rigidbody.MovePosition(position);
     }
+    
 
-    // Ehelyett es az Extensions.DotTest() helyett lehet eleg csak if(_rigidBody.Raycast(Vector2.up)) velocity.y = 0f; Mert nalam nincs specialbox ami kiveteles ha megfejeli
+    // a karakter testevel utkozo objektumok kezelese
     private void OnCollisionEnter2D(Collision2D collision) {
-        if(transform.DotTest(collision.transform, Vector2.up))
-            velocity.y = 0f;
+        if(transform.DotTest(collision.transform, Vector2.up)) // ha ugras kozben beleutjuk a fejunket valamibe, akkor a sebesseget az y tengelyen nullazni kell, hogy hagyjuk a
+            velocity.y = 0f; // gravitaciot eletbe lepni, kulonben olyan hatas lenne mintha hozzatapadnank egy rovid idore a plafonhoz, mert a sebessegunk meg oda tartana minket
         if (collision.collider.CompareTag("WoundingSliceable") || collision.collider.CompareTag("WoundingObject") || collision.collider.CompareTag("Reward")) {
             animator.SetTrigger("TakeHitTriggered");
-            //Debug.Log(Time.time - timeOfLastHit);
-            float timeOfCurrentHit = Time.time;
-            if (timeOfLastHit == 0f || timeOfCurrentHit - timeOfLastHit > 0.5) {
-                heartsManager.TakeDamage(1);
-                Vector2 hurtedVelo = new Vector2(-characterDir.x * 10, 20);
-                velocity += hurtedVelo;
-                timeOfLastHit = timeOfCurrentHit;
+            float timeOfCurrentHit = Time.time; // az utolso frame kezdete ota ebben a pillanatban eltelt idot eltaroljuk egy valtozoban, hogy megnezzuk nem telt e el tul keves ido, hogy megserulhessunk ismet az elozo serules ota
+            if (timeOfLastHitTaken == 0f || timeOfCurrentHit - timeOfLastHitTaken > 0.5) {
+                heartsManager.TakeDamage(1); // Sebzest okoz a szamurajnak
+                Vector2 hurtedVelo = new Vector2(-characterDir.x * 10, 20); // konstans, ami megadja mekkora erovel hokkenjunk hatra mikor megserulunk
+                velocity += hurtedVelo; // hozzaadjuk es nem pedig egyenlove tesszuk, mert igy ha legalabb pl szakadek felett ugrunk at es tuske van a tuloldalon van eselyunk aterkezni, mert ha egyenlove tennenk, akkor menetirannyal ellenkezo iranyba lokodnenk mindig
+                timeOfLastHitTaken = timeOfCurrentHit; // vezetjuk, hogy mindig az epp utolso serulest taroljuk
             }
         }
-        if (heartsManager.life == 0) {
+        if (heartsManager.life == 0) { // ha elfogyott az eletunk meghaltunk
             PlayerDead();
         }
     }
 
+    // A jatekos mozgasanak engedelyezese
     private void EnablePlayerMovement() {
-        animator.enabled = true;
-        _rigidbody.bodyType = RigidbodyType2D.Dynamic;
+        animator.enabled = true; // engedelyezi az animalast
+        _rigidbody.bodyType = RigidbodyType2D.Dynamic; // engedelyezi a mozgast
     }
 
+    // A jatekos halala
     public void PlayerDead() {
-        animator.SetBool("PlayerDied", true);
-        _rigidbody.bodyType = RigidbodyType2D.Static;
+        ApplyGravity();
+        animator.SetBool("PlayerDied", true); // lejatsza a meghalas animaciot
+        _rigidbody.bodyType = RigidbodyType2D.Static; // ne tudjon mozogni a karakter amikor halottak vagyunk
     }
 }

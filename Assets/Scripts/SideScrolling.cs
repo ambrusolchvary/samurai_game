@@ -23,7 +23,7 @@ public class SideScrolling : MonoBehaviour
         float fspeed = Mathf.Min(1.0f, followspeed * dt);
         Vector3 oldPos = transform.position;
         Vector3 newPos = oldPos;
-        newPos.x = Mathf.Max(cameraStartPos.x, player.position.x);       // Ha nem akarjuk, hogy a kamera hatrafele is kovesse a karaktert
+        newPos.x = Mathf.Max(cameraStartPos.x, player.position.x);
         newPos.y = player.position.y + 4f;
         newPos = oldPos + (newPos - oldPos) * fspeed;
         transform.position = newPos;
